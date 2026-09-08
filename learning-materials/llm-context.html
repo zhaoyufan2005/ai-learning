@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大模型的上下文（Context） - 学习资料</title>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#ffffff; --text:#24292f; --muted:#57606a;
+    --accent:#7c3aed; --accent-soft:#f3eefe; --border:#e5e7eb;
+    --warn:#b45309; --warn-soft:#fffbeb; --ok:#047857; --ok-soft:#ecfdf5;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.75; padding-bottom:60px;
+  }
+  header{
+    background:linear-gradient(135deg,#4c1d95 0%,#7c3aed 100%);
+    color:#fff; padding:48px 24px 40px; text-align:center;
+  }
+  header h1{font-size:2rem; margin-bottom:10px;}
+  header .def{max-width:720px; margin:0 auto; font-size:1.05rem; opacity:.92;}
+  header .tag{
+    display:inline-block; margin-bottom:14px; padding:3px 14px; border-radius:999px;
+    background:rgba(255,255,255,.18); font-size:.85rem; letter-spacing:1px;
+  }
+  nav{
+    position:sticky; top:0; z-index:10; background:var(--card);
+    border-bottom:1px solid var(--border); padding:10px 16px;
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+  }
+  nav a{
+    color:#6d28d9; text-decoration:none; font-size:.9rem;
+    padding:4px 12px; border-radius:6px; background:var(--accent-soft);
+  }
+  nav a:hover{background:#ede4fb;}
+  main{max-width:860px; margin:0 auto; padding:24px 20px;}
+  section{
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:28px 26px; margin-bottom:24px;
+  }
+  h2{
+    font-size:1.35rem; margin-bottom:18px; padding-bottom:10px;
+    border-bottom:2px solid var(--accent-soft); display:flex; align-items:center; gap:10px;
+  }
+  h2 .num{
+    background:var(--accent); color:#fff; width:28px; height:28px; border-radius:8px;
+    display:inline-flex; align-items:center; justify-content:center; font-size:.9rem; flex:none;
+  }
+  h3{font-size:1.05rem; margin:18px 0 8px; color:#4c1d95;}
+  p{margin-bottom:12px;}
+  ul,ol{margin:0 0 12px 22px;}
+  li{margin-bottom:6px;}
+  .term{color:#6d28d9; font-weight:600;}
+  .box{
+    border-radius:10px; padding:14px 16px; margin:14px 0; border:1px solid var(--border);
+  }
+  .box.tip{background:var(--accent-soft); border-color:#ddd0f7;}
+  .box.warn{background:var(--warn-soft); border-color:#fde68a;}
+  .box.ok{background:var(--ok-soft); border-color:#a7f3d0;}
+  .box .label{font-weight:700; display:block; margin-bottom:6px;}
+  .box.tip .label{color:#6d28d9;}
+  .box.warn .label{color:var(--warn);}
+  .box.ok .label{color:var(--ok);}
+  .case{
+    border-left:4px solid var(--accent); background:#fafbfc;
+    border-radius:0 10px 10px 0; padding:14px 18px; margin:16px 0;
+  }
+  .case .case-tag{
+    display:inline-block; font-size:.78rem; background:var(--accent-soft);
+    color:#6d28d9; padding:2px 10px; border-radius:999px; margin-bottom:8px; font-weight:600;
+  }
+  .case.counter{border-left-color:var(--warn);}
+  .case.counter .case-tag{background:var(--warn-soft); color:var(--warn);}
+  details{
+    border:1px solid var(--border); border-radius:10px; margin:10px 0; background:#fafbfc;
+  }
+  details summary{
+    cursor:pointer; padding:12px 16px; font-weight:600; list-style:none; user-select:none;
+  }
+  details summary::-webkit-details-marker{display:none;}
+  details summary::before{content:"▸ "; color:var(--accent);}
+  details[open] summary::before{content:"▾ ";}
+  details .ans{padding:0 16px 14px; border-top:1px dashed var(--border); padding-top:12px;}
+  details .ans .goal{
+    display:inline-block; font-size:.75rem; color:var(--muted);
+    background:var(--bg); padding:2px 10px; border-radius:999px; margin-top:8px;
+  }
+  .btn-all{
+    display:block; margin:16px auto 4px; padding:8px 22px; border:none; border-radius:8px;
+    background:var(--accent); color:#fff; font-size:.9rem; cursor:pointer;
+  }
+  .btn-all:hover{background:#6d28d9;}
+  .refs li{margin-bottom:10px;}
+  .refs .src{color:var(--muted); font-size:.88rem;}
+  .diagram{
+    background:#fafbfc; border:1px dashed var(--border); border-radius:10px;
+    padding:16px; margin:14px 0; font-family:Consolas,monospace; font-size:.85rem;
+    white-space:pre; overflow-x:auto; line-height:1.5;
+  }
+  footer{text-align:center; color:var(--muted); font-size:.85rem; padding:12px;}
+  @media (max-width:600px){
+    header h1{font-size:1.5rem;}
+    section{padding:20px 16px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="tag">AI / 大语言模型 · 学习资料</span>
+  <h1>大模型的上下文（Context）</h1>
+  <p class="def">一句话定义：<strong>上下文是大模型在一次推理中能"看到"的全部输入文字（以及生成的文字），它既是模型的短期记忆，也是其唯一的信息来源</strong>。</p>
+</header>
+
+<nav>
+  <a href="#objectives">学习目标</a>
+  <a href="#explanation">概念解释</a>
+  <a href="#examples">案例</a>
+  <a href="#quiz">自测题</a>
+  <a href="#references">参考来源</a>
+</nav>
+
+<main>
+
+<!-- ================= 1. 学习目标 ================= -->
+<section id="objectives">
+  <h2><span class="num">1</span>学习目标</h2>
+  <p>学完本资料后，你应当能够：</p>
+  <ol>
+    <li><strong>解释</strong>上下文（Context）与上下文窗口（Context Window）的含义，说明为什么上下文是大模型的"唯一信息来源"。</li>
+    <li><strong>换算</strong> token 与常见文本量的对应关系，估算一段材料大约占用多少上下文。</li>
+    <li><strong>区分</strong>上下文内学习（In-Context Learning）、微调（Fine-tuning）与检索增强生成（RAG）三种"让模型掌握信息"的方式。</li>
+    <li><strong>诊断</strong>"上下文用错了"导致的典型症状：首尾偏差（Lost in the Middle）、超窗截断、多轮对话遗忘。</li>
+    <li><strong>应用</strong>管理长任务的上下文策略（压缩、摘要、外部记忆），并评估何时该扩窗、何时该换方案。</li>
+  </ol>
+</section>
+
+<!-- ================= 2. 概念解释 ================= -->
+<section id="explanation">
+  <h2><span class="num">2</span>概念解释</h2>
+
+  <h3>🟢 一句话版本</h3>
+  <p>上下文就是模型此刻"脑子里装着的全部内容"——一次对话中你说过的话、它回过的话、塞给它的资料，加在一起。</p>
+
+  <h3>🟡 直观版本</h3>
+  <p>把大模型想象成一位<strong>记性极差但理解力极强的专家</strong>：每次轮到他说话时，他都会把此前桌上摊开的<strong>所有纸条重新读一遍</strong>，然后写下新的回复。</p>
+  <p>这个"桌面"就是<strong>上下文</strong>。桌面有固定大小——<strong>塞不下的纸条会被丢掉</strong>（通常是更早的对话）。桌面上有什么，他就知道什么；桌上没有的，他一概不知，只能靠训练时的老本瞎猜。</p>
+  <div class="box tip">
+    <span class="label">💡 关键直觉</span>
+    模型没有"隐形的记忆"。它<strong>不是"记得"你</strong>，而是<strong>"每次都重新读了一遍完整的聊天记录"</strong>。所以清空对话 = 把桌子擦干净；聊得太长 = 桌上堆不下，最早的纸条被扔掉。
+  </div>
+
+  <h3>🔵 严谨版本</h3>
+  <p><strong>上下文（Context）</strong>：一次推理请求中输入模型的完整 token 序列，通常包括：系统提示词（System Prompt）、历史对话（多轮消息）、检索注入的资料、工具调用结果，以及当前用户输入。</p>
+  <p><strong>上下文窗口（Context Window）</strong>：模型能处理的<strong>最大 token 数</strong>（输入 + 输出共享）。超限时，API 会报错或静默截断较早的内容。常见量级参考：</p>
+  <ul>
+    <li>1 token ≈ 英文 0.75 个单词 ≈ 中文 0.5–0.75 个汉字</li>
+    <li>8K tokens ≈ 一篇短论文；128K tokens ≈ 一本 200–300 页的书；百万级 tokens ≈ 十几本书</li>
+  </ul>
+  <p><strong>关键机制：</strong>大模型基于<span class="term">自回归生成</span>——每个新 token 的概率只由<strong>之前的全部 token</strong>决定。因此"上下文"不是附加功能，而是模型工作的根基：给什么上下文，就有什么输出。这也解释了三个衍生现象：</p>
+  <ul>
+    <li><span class="term">In-Context Learning（上下文内学习）</span>：不更新任何参数，仅在上下文里放几个示例，模型就能模仿格式和规律——"学会"的东西只活在本次窗口内，换个对话就忘。</li>
+    <li><span class="term">Lost in the Middle（首尾偏差）</span>：研究表明，长上下文中间位置的信息被利用的效果显著差于开头和结尾——模型对"桌面上压在最底下的纸条"注意力较弱。</li>
+    <li><span class="term">上下文污染（Context Pollution）</span>：无关或错误的上下文会稀释有效信息，把垃圾塞进长窗口，效果可能不升反降。</li>
+  </ul>
+  <p><strong>三种"让模型掌握信息"的方式对比：</strong></p>
+  <div class="diagram">方式          何时生效      持久性        典型用途
+─────────────────────────────────────────────────────────
+上下文/ICL    请求即刻生效   仅本次窗口    给示例、给资料、临时规则
+RAG 检索增强  请求即刻生效   每次按需检索   私有知识库问答
+微调训练      训练完成之后   永久写入参数   风格、领域能力的固化</div>
+  <div class="box warn">
+    <span class="label">⚠️ 常见误解</span>
+    <ul>
+      <li><em>"上下文窗口越大，模型就越聪明。"</em> —— 不对。窗口大只代表"装得多"，不代表"读得准"。有效利用长上下文是另一项独立能力。</li>
+      <li><em>"模型说'我记得你上次说过……'，说明它有记忆。"</em> —— 通常只是你本次对话的上下文里确实有这句话；新开对话它就不知道了（除非产品层做了持久记忆功能，那是外部系统，不是模型本身）。</li>
+      <li><em>"资料塞进上下文 = 模型学会了。"</em> —— 上下文是"考前看小抄"，微调才是"上课学会了"；小抄拿走就忘。</li>
+    </ul>
+  </div>
+
+  <h3>📜 来龙去脉</h3>
+  <p>上下文长度的扩张几乎与大模型的发展史同步：GPT-2 时代约 1K tokens，GPT-3 提至 2K/4K 并首次展示了 In-Context Learning 的"少样本提示"能力，GPT-4 Turbo 达到 128K，此后 Gemini 等模型推进到百万级 token。与此同时，2023 年 "Lost in the Middle" 论文揭示了长上下文利用不均的问题，催生了 RAG 与上下文压缩等工程方向。</p>
+</section>
+
+<!-- ================= 3. 案例 ================= -->
+<section id="examples">
+  <h2><span class="num">3</span>案例</h2>
+
+  <div class="case">
+    <span class="case-tag">日常案例 · 难度 ★</span>
+    <p><strong>情境：</strong>你和 AI 助手聊天：先说了"我叫小王，我是做跨境电商的"，聊了 40 轮后问"你还记得我是做什么的吗？"</p>
+    <p><strong>概念体现：</strong>只要这段自我介绍还在上下文窗口内，模型每轮都会"重新读到"它，因此能答对。但如果对话超过窗口、早期内容被截断，模型就会失忆——不是它"忘了"，而是<strong>纸条被扔下了桌子</strong>。</p>
+    <p><strong>结论：</strong>多轮对话的"记忆"本质是上下文的重放；超窗即遗忘。</p>
+  </div>
+
+  <div class="case">
+    <span class="case-tag">行业案例 · 难度 ★★★</span>
+    <p><strong>情境：</strong>法务团队要让 AI 审查一份 80 页的合同。</p>
+    <p><strong>概念体现：</strong>80 页 ≈ 10 万+ tokens。方案 A：全文塞进 128K 窗口——可行，但合同关键条款可能落在中部，遭遇 <strong>Lost in the Middle</strong>，审查遗漏率上升。方案 B：先检索定位相关章节、只把相关条款注入上下文（RAG 思路），再用提示词要求"逐条引用原文条款编号"——上下文更干净，答案可溯源。</p>
+    <p><strong>结论：</strong>长文档处理的工程要点不是"塞得下"，而是"喂得准"：检索、分段、关键信息前置。</p>
+  </div>
+
+  <div class="case">
+    <span class="case-tag">进阶案例 · 难度 ★★★★</span>
+    <p><strong>情境：</strong>一个编程 Agent 连续工作数小时，读了几十个文件、跑了很多命令，上下文即将耗尽。</p>
+    <p><strong>概念体现：</strong>成熟的 Agent 会做<strong>上下文管理</strong>：把已确认的结论（如"bug 在 auth.py 第 42 行，因空指针"）压缩成简短摘要，清理无用的工具输出，必要时把中间结果写入外部文件，仅保留"工作备忘录"在窗口内——用<strong>外部记忆</strong>换<strong>窗口空间</strong>，类似人脑把细节记到笔记本而不是全靠脑子。</p>
+    <p><strong>结论：</strong>长任务 Agent 的核心工程问题之一就是上下文的"收支管理"：什么进窗口、什么存外部、什么直接丢弃。</p>
+  </div>
+
+  <div class="case counter">
+    <span class="case-tag">反例 · 上下文的误用</span>
+    <p><strong>情境：</strong>某团队把整份 500 页的产品手册全量塞进百万级上下文，让 AI 回答客服问题，效果反而不如只喂 3 页相关章节的旧方案。</p>
+    <p><strong>辨析：</strong>这正是<strong>上下文污染</strong>：海量无关内容稀释了模型的注意力，且关键信息大概率落在中部。窗口大小解决的是"能不能装"，不解决"找不找得到、信不信得过"。此场景的正确解法通常是检索（RAG），而非硬塞。</p>
+    <p><strong>结论：</strong>上下文是稀缺资源，应当像管理预算一样管理它——按需注入，而非全量倾倒。</p>
+  </div>
+</section>
+
+<!-- ================= 4. 自测题 ================= -->
+<section id="quiz">
+  <h2><span class="num">4</span>自测题</h2>
+  <p>先自己作答，再点击展开答案与解析。</p>
+
+  <details>
+    <summary>第 1 题（单选）大模型"记得"多轮对话内容，最准确的解释是？</summary>
+    <div class="ans">
+      <p><strong>答案：B</strong></p>
+      <p>A. 模型把对话写进了长期记忆&nbsp;&nbsp;B. 每次请求都把完整历史对话重新作为上下文输入&nbsp;&nbsp;C. 模型内部有一个对话数据库&nbsp;&nbsp;D. 模型边聊边自我微调</p>
+      <p>解析：标准 LLM 无跨请求记忆，"记得"是上下文重放的表象。长期记忆类产品功能是外部系统实现的，不属于模型本身。</p>
+      <span class="goal">考察学习目标 1</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 2 题（估算）一篇 2 万汉字的中文报告，大约需要多少上下文空间？</summary>
+    <div class="ans">
+      <p><strong>参考答案：约 2 万–4 万 tokens。</strong></p>
+      <p>解析：中文约 0.5–0.75 个汉字/token，即 1 token ≈ 0.5~0.75 个汉字，故 2 万字 ≈ 2.7 万–4 万 tokens。2 万 tokens 的窗口（≈ 输出上限另计）很可能装不下，需要分段或压缩。</p>
+      <span class="goal">考察学习目标 2</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 3 题（单选）"Lost in the Middle" 指的是？</summary>
+    <div class="ans">
+      <p><strong>答案：C</strong></p>
+      <p>A. 窗口超限时中间内容最先被保留&nbsp;&nbsp;B. 模型生成时总在中间跑题&nbsp;&nbsp;C. 长上下文中，位于中部的信息利用效果显著差于首尾&nbsp;&nbsp;D. 对话轮数太多导致模型混乱</p>
+      <p>解析：Liu et al. (2023) 的实证结论：关键信息放中间时模型表现明显下降，故工程上常把最重要的指令和资料放在上下文的<strong>开头或结尾</strong>。</p>
+      <span class="goal">考察学习目标 4</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 4 题（判断）在上下文里给模型 5 个输入输出示例，模型模仿了格式。这说明模型已经"学会"了这项技能，新对话中不用再给示例。</summary>
+    <div class="ans">
+      <p><strong>答案：错误</strong></p>
+      <p>解析：这是 In-Context Learning，"学习成果"仅存在于当前窗口，不写入模型参数。新对话没有这些示例，模型不会延续——要永久固化必须微调。</p>
+      <span class="goal">考察学习目标 3</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 5 题（简答）说明上下文示例（ICL）、RAG、微调三种方式的核心区别，并各举一个适用场景。</summary>
+    <div class="ans">
+      <p><strong>参考答案：</strong>① ICL：把信息/示例放入本次上下文，即刻生效、窗口内有效——适合临时规则和格式示范；② RAG：每次按需检索相关片段注入上下文——适合频繁更新的私有知识库问答；③ 微调：通过训练把能力写入参数，永久生效——适合需要固化到"肌肉记忆"的风格或领域技能。三者可组合：微调定风格，RAG 供事实，ICL 调格式。</p>
+      <span class="goal">考察学习目标 3</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 6 题（应用题）某 AI 客服接到需求："总结用户与人工客服的全部历史聊天（约 5 万 tokens）"。模型上下文窗口仅 8K。给出至少两种可行方案及取舍。</summary>
+    <div class="ans">
+      <p><strong>参考答案：</strong>① <strong>分段摘要再汇总（Map-Reduce）</strong>：把记录切成若干段，各段分别摘要（每段都在窗口内），再把摘要合并做总摘要——通用性好，但两轮压缩会损失细节；② <strong>滚动摘要</strong>：按时间顺序逐段读入，维护一个不断更新的"累积摘要"——适合长流式记录；③ <strong>检索关键部分</strong>：只检索与用户诉求相关的片段进入上下文——最快但可能漏掉重要背景。共同原理：用"窗口外的摘要/检索"替代"窗口内的全文"。</p>
+      <span class="goal">考察学习目标 5（应用）</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 7 题（应用题）判断以下做法是否合理："公司知识库有 1 万篇文档，为了省事，挑窗口最大的模型，每次提问都全量塞入全部文档。"</summary>
+    <div class="ans">
+      <p><strong>参考答案：不合理。</strong>理由：① 1 万篇文档远超任何现有窗口，物理上塞不下；② 即便未来窗口够大，全量注入会造成上下文污染与 Lost in the Middle，成本（按 token 计费）也高到不可接受；③ 正确做法是 RAG：先按问题检索最相关的几段内容，再注入上下文生成答案。此题考察的核心判断：上下文的价值在于<strong>相关性</strong>而非<strong>数量</strong>。</p>
+      <span class="goal">考察学习目标 4、5（诊断与评估）</span>
+    </div>
+  </details>
+
+  <button class="btn-all" onclick="document.querySelectorAll('details').forEach(d=>d.open=true)">显示全部答案</button>
+</section>
+
+<!-- ================= 5. 参考来源 ================= -->
+<section id="references">
+  <h2><span class="num">5</span>参考来源</h2>
+  <ul class="refs">
+    <li>
+      Brown, T. et al. <em>Language Models are Few-Shot Learners</em> (GPT-3 论文), NeurIPS 2020. —— In-Context Learning 的系统性展示。
+      <div class="src">原始论文 · arXiv:2005.14165 · https://arxiv.org/abs/2005.14165</div>
+    </li>
+    <li>
+      Liu, N. F. et al. <em>Lost in the Middle: How Language Models Use Long Contexts</em>, TACL 2024.
+      <div class="src">原始论文 · arXiv:2307.03172 · https://arxiv.org/abs/2307.03172</div>
+    </li>
+    <li>
+      Lewis, P. et al. <em>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</em>, NeurIPS 2020. —— RAG 的开山论文。
+      <div class="src">原始论文 · arXiv:2005.11401 · https://arxiv.org/abs/2005.11401</div>
+    </li>
+    <li>
+      OpenAI, <em>Help Center: What are tokens and how to count them?</em>.
+      <div class="src">官方文档 · https://help.openai.com/en/articles/4936856</div>
+    </li>
+    <li>
+      Vaswani, A. et al. <em>Attention Is All You Need</em>, NeurIPS 2017. —— 自回归/注意力机制的理论根基。
+      <div class="src">原始论文 · arXiv:1706.03762 · https://arxiv.org/abs/1706.03762</div>
+    </li>
+    <li>
+      Karpathy, A. <em>A Recipe for Training Neural Networks</em> 及相关公开讲座（含 prompt/context 的实践论述）。
+      <div class="src">工程实践参考 · https://karpathy.github.io/2019/04/25/recipe/</div>
+    </li>
+  </ul>
+</section>
+
+</main>
+
+<footer>由 concept-learner 生成 · 学习概念：大模型的上下文（Context）· 可离线浏览</footer>
+
+</body>
+</html>

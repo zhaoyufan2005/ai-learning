@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent · 上下文 · Skill 三者关系 - 学习资料</title>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#ffffff; --text:#24292f; --muted:#57606a;
+    --c-agent:#3b82f6; --c-agent-soft:#eff6ff;
+    --c-ctx:#7c3aed; --c-ctx-soft:#f3eefe;
+    --c-skill:#0d9488; --c-skill-soft:#eff9f8;
+    --border:#e5e7eb; --warn:#b45309; --warn-soft:#fffbeb;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.75; padding-bottom:60px;
+  }
+  header{
+    background:linear-gradient(120deg,#1e3a8a 0%,#4c1d95 50%,#134e4a 100%);
+    color:#fff; padding:48px 24px 40px; text-align:center;
+  }
+  header h1{font-size:1.8rem; margin-bottom:10px;}
+  header .def{max-width:760px; margin:0 auto; font-size:1.05rem; opacity:.92;}
+  header .tag{
+    display:inline-block; margin-bottom:14px; padding:3px 14px; border-radius:999px;
+    background:rgba(255,255,255,.18); font-size:.85rem; letter-spacing:1px;
+  }
+  nav{
+    position:sticky; top:0; z-index:10; background:var(--card);
+    border-bottom:1px solid var(--border); padding:10px 16px;
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+  }
+  nav a{
+    color:#334155; text-decoration:none; font-size:.9rem;
+    padding:4px 12px; border-radius:6px; background:var(--bg);
+  }
+  nav a:hover{background:#e2e8f0;}
+  main{max-width:900px; margin:0 auto; padding:24px 20px;}
+  section{
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:28px 26px; margin-bottom:24px;
+  }
+  h2{
+    font-size:1.3rem; margin-bottom:18px; padding-bottom:10px;
+    border-bottom:2px solid var(--bg); display:flex; align-items:center; gap:10px;
+  }
+  h3{font-size:1.05rem; margin:18px 0 8px; color:#1e293b;}
+  p{margin-bottom:12px;}
+  ul,ol{margin:0 0 12px 22px;}
+  li{margin-bottom:6px;}
+  .box{border-radius:10px; padding:14px 16px; margin:14px 0; border:1px solid var(--border);}
+  .box .label{font-weight:700; display:block; margin-bottom:6px;}
+  .box.core{background:linear-gradient(135deg,#eff6ff,#f3eefe); border-color:#c7d7f7;}
+  .box.core .label{color:#1e3a8a;}
+  .box.warn{background:var(--warn-soft); border-color:#fde68a;}
+  .box.warn .label{color:var(--warn);}
+  .box.tip{background:var(--c-skill-soft); border-color:#b8e3df;}
+  .box.tip .label{color:#0f766e;}
+  .chip{
+    display:inline-block; padding:1px 10px; border-radius:999px; font-size:.88rem; font-weight:600;
+  }
+  .chip.agent{background:var(--c-agent-soft); color:#1d4ed8;}
+  .chip.ctx{background:var(--c-ctx-soft); color:#6d28d9;}
+  .chip.skill{background:var(--c-skill-soft); color:#0f766e;}
+  .figure{
+    background:#fafbfc; border:1px solid var(--border); border-radius:12px;
+    padding:18px; margin:16px 0; text-align:center; overflow-x:auto;
+  }
+  .figure svg{max-width:100%; height:auto;}
+  .figcap{
+    text-align:center; color:var(--muted); font-size:.88rem; margin-top:10px;
+  }
+  .analogy{
+    border:1px dashed var(--border); border-radius:10px; background:#fafbfc;
+    padding:16px 20px; margin:14px 0;
+  }
+  .analogy table{width:100%; border-collapse:collapse; font-size:.95rem;}
+  .analogy th,.analogy td{padding:8px 10px; text-align:left; border-bottom:1px solid var(--border);}
+  .analogy th{color:#334155; white-space:nowrap;}
+  .flow{
+    background:#fafbfc; border:1px dashed var(--border); border-radius:10px;
+    padding:16px; margin:14px 0; font-family:Consolas,monospace; font-size:.83rem;
+    white-space:pre; overflow-x:auto; line-height:1.6;
+  }
+  .refs li{margin-bottom:8px;}
+  .refs .src{color:var(--muted); font-size:.88rem;}
+  footer{text-align:center; color:var(--muted); font-size:.85rem; padding:12px;}
+  @media (max-width:600px){
+    header h1{font-size:1.4rem;}
+    section{padding:20px 16px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="tag">概念关系 · AI 核心三件套</span>
+  <h1>Agent · 大模型的上下文 · Skill</h1>
+  <p class="def">核心逻辑：<strong>上下文（Context）是 Agent 的"工作台"，Skill 是"可按需加载到工作台上的工具包"</strong>——Agent 是坐在工作台前干活的"人"，三者构成一个完整的工作系统。</p>
+</header>
+
+<nav>
+  <a href="#core-idea">核心关系</a>
+  <a href="#diagram">关系图示</a>
+  <a href="#workshop">车间类比</a>
+  <a href="#workflow">协作流程</a>
+  <a href="#boundaries">边界与要点</a>
+  <a href="#references">参考来源</a>
+</nav>
+
+<main>
+
+<!-- ================= 核心关系 ================= -->
+<section id="core-idea">
+  <h2>🎯 一段话讲清三者关系</h2>
+  <div class="box core">
+    <span class="label">核心逻辑</span>
+    <p><span class="chip agent">Agent（智能体）</span> 是<strong>行动主体</strong>：它有目标、会规划、能决策"接下来做什么"。</p>
+    <p><span class="chip ctx">上下文（Context）</span> 是 Agent 的<strong>工作台</strong>：Agent 的每一次思考都发生在这张台面上——台面上摊着的东西（对话历史、系统提示、检索到的资料、工具返回结果）就是它此刻知道的全部。台面有固定大小（上下文窗口），堆满就得清理。</p>
+    <p><span class="chip skill">Skill（技能包）</span> 是<strong>放在台边工具架上的操作手册</strong>：平时只露出"书名和简介"（描述），几乎不占台面；当任务匹配时，Agent 把它<strong>取下来摊开在工作台上</strong>（加载 SKILL.md 全文），照着手册里写好的流程和规范干活。</p>
+    <p style="margin-bottom:0"><strong>一句话串联：</strong>Agent 坐在上下文这张工作台前，遇到熟悉的活儿，就从架上取下对应的 Skill 摊开照做——Skill 通过上下文发挥作用，上下文通过 Skill 获得结构化的经验。</p>
+  </div>
+</section>
+
+<!-- ================= 关系图示 ================= -->
+<section id="diagram">
+  <h2>📐 关系图示</h2>
+
+  <div class="figure">
+    <svg viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Agent、上下文、Skill 关系图">
+      <!-- 上下文工作台 -->
+      <rect x="60" y="200" width="440" height="150" rx="14" fill="#f3eefe" stroke="#7c3aed" stroke-width="2.5"/>
+      <text x="280" y="232" text-anchor="middle" font-size="17" font-weight="bold" fill="#4c1d95">上下文（工作台）</text>
+      <text x="280" y="254" text-anchor="middle" font-size="12" fill="#6d28d9">大小固定 = 上下文窗口</text>
+      <!-- 台面上的东西 -->
+      <rect x="80" y="270" width="120" height="56" rx="8" fill="#ffffff" stroke="#c4b5fd"/>
+      <text x="140" y="293" text-anchor="middle" font-size="12" fill="#4c1d95">系统提示</text>
+      <text x="140" y="311" text-anchor="middle" font-size="12" fill="#4c1d95">对话历史</text>
+      <rect x="215" y="270" width="120" height="56" rx="8" fill="#ffffff" stroke="#c4b5fd"/>
+      <text x="275" y="293" text-anchor="middle" font-size="12" fill="#4c1d95">检索资料</text>
+      <text x="275" y="311" text-anchor="middle" font-size="12" fill="#4c1d95">工具返回结果</text>
+      <rect x="350" y="270" width="130" height="56" rx="8" fill="#eff9f8" stroke="#0d9488" stroke-dasharray="5,4"/>
+      <text x="415" y="288" text-anchor="middle" font-size="12" fill="#0f766e">已加载的 Skill</text>
+      <text x="415" y="306" text-anchor="middle" font-size="11" fill="#0f766e">（摊开的手册）</text>
+      <!-- Agent -->
+      <circle cx="280" cy="110" r="34" fill="#eff6ff" stroke="#3b82f6" stroke-width="2.5"/>
+      <text x="280" y="105" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e3a8a">Agent</text>
+      <text x="280" y="123" text-anchor="middle" font-size="11" fill="#1e3a8a">决策者</text>
+      <!-- Agent 到工作台 -->
+      <line x1="280" y1="144" x2="280" y2="198" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+      <text x="292" y="168" font-size="12" fill="#1e3a8a">在台面上思考/工作</text>
+      <!-- 工具架 Skill -->
+      <rect x="540" y="60" width="120" height="150" rx="12" fill="#eff9f8" stroke="#0d9488" stroke-width="2.5"/>
+      <text x="600" y="88" text-anchor="middle" font-size="15" font-weight="bold" fill="#134e4a">Skill 架</text>
+      <rect x="552" y="102" width="96" height="28" rx="6" fill="#ffffff" stroke="#5eead4"/>
+      <text x="600" y="121" text-anchor="middle" font-size="11" fill="#0f766e">技能 A 📖</text>
+      <rect x="552" y="138" width="96" height="28" rx="6" fill="#ffffff" stroke="#5eead4"/>
+      <text x="600" y="157" text-anchor="middle" font-size="11" fill="#0f766e">技能 B 📖</text>
+      <text x="600" y="190" text-anchor="middle" font-size="10" fill="#0f766e">平时只露</text>
+      <text x="600" y="203" text-anchor="middle" font-size="10" fill="#0f766e">"书名+简介"</text>
+      <!-- Skill 到工作台 -->
+      <path d="M 540 135 C 470 150, 480 230, 480 268" fill="none" stroke="#0d9488" stroke-width="2.5" stroke-dasharray="7,5" marker-end="url(#arrowTeal)"/>
+      <text x="470" y="212" text-anchor="end" font-size="12" fill="#0f766e">任务匹配时</text>
+      <text x="470" y="228" text-anchor="end" font-size="12" fill="#0f766e">取下摊开（加载）</text>
+      <defs>
+        <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#3b82f6"/>
+        </marker>
+        <marker id="arrowTeal" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 z" fill="#0d9488"/>
+        </marker>
+      </defs>
+    </svg>
+    <p class="figcap">图 1：Agent 在"上下文工作台"上工作；Skill 平时收在架上，任务匹配时才摊开到台面（渐进式披露）</p>
+  </div>
+
+  <div class="figure">
+    <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="三者信息流示意">
+      <rect x="20" y="110" width="130" height="80" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+      <text x="85" y="145" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e3a8a">用户目标</text>
+      <text x="85" y="168" text-anchor="middle" font-size="11" fill="#1e3a8a">"帮我学习 X"</text>
+      <rect x="200" y="110" width="130" height="80" rx="12" fill="#f3eefe" stroke="#7c3aed" stroke-width="2"/>
+      <text x="265" y="138" text-anchor="middle" font-size="14" font-weight="bold" fill="#4c1d95">上下文</text>
+      <text x="265" y="158" text-anchor="middle" font-size="11" fill="#4c1d95">承载一切信息</text>
+      <text x="265" y="174" text-anchor="middle" font-size="11" fill="#4c1d95">（工作台）</text>
+      <rect x="380" y="110" width="130" height="80" rx="12" fill="#eff9f8" stroke="#0d9488" stroke-width="2"/>
+      <text x="445" y="138" text-anchor="middle" font-size="14" font-weight="bold" fill="#134e4a">Skill</text>
+      <text x="445" y="158" text-anchor="middle" font-size="11" fill="#134e4a">注入结构化经验</text>
+      <text x="445" y="174" text-anchor="middle" font-size="11" fill="#134e4a">（工具包）</text>
+      <rect x="552" y="110" width="110" height="80" rx="12" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+      <text x="607" y="145" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">产出</text>
+      <text x="607" y="168" text-anchor="middle" font-size="11" fill="#334155">HTML 资料</text>
+      <line x1="150" y1="150" x2="196" y2="150" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#aP)"/>
+      <line x1="330" y1="150" x2="376" y2="150" stroke="#0d9488" stroke-width="2.5" marker-end="url(#aT)"/>
+      <line x1="510" y1="150" x2="548" y2="150" stroke="#334155" stroke-width="2.5" marker-end="url(#aG)"/>
+      <rect x="225" y="20" width="230" height="50" rx="25" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+      <text x="340" y="50" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e3a8a">Agent：读台面 → 决策 → 行动（循环）</text>
+      <path d="M 340 70 L 340 106" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#aB2)"/>
+      <text x="30" y="250" font-size="12" fill="#57606a">① 目标进入上下文 → ② Agent 读到目标与 Skill 描述 → ③ 匹配则加载 Skill 全文到上下文 → ④ 按 Skill 流程产出</text>
+      <defs>
+        <marker id="aP" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#7c3aed"/></marker>
+        <marker id="aT" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0d9488"/></marker>
+        <marker id="aG" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#334155"/></marker>
+        <marker id="aB2" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#3b82f6"/></marker>
+      </defs>
+    </svg>
+    <p class="figcap">图 2：信息流——Skill 不是"旁路"，而是经由上下文进入 Agent 的视野</p>
+  </div>
+</section>
+
+<!-- ================= 车间类比 ================= -->
+<section id="workshop">
+  <h2>🏭 一个贯穿的类比：维修车间</h2>
+  <p>把整套系统想象成一间维修车间：</p>
+  <div class="analogy">
+    <table>
+      <tr><th>车间里</th><th>系统里</th><th>关键性质</th></tr>
+      <tr>
+        <td><strong>老师傅</strong>（会判断、会拆解任务）</td>
+        <td><span class="chip agent">Agent</span></td>
+        <td>决策者；能力来自底座模型</td>
+      </tr>
+      <tr>
+        <td><strong>工作台</strong>（台面上摆什么就知道什么）</td>
+        <td><span class="chip ctx">上下文</span></td>
+        <td>唯一信息来源；面积固定（窗口）；旧物堆多了要清</td>
+      </tr>
+      <tr>
+        <td><strong>墙上工具架上的操作手册</strong></td>
+        <td><span class="chip skill">Skill</span></td>
+        <td>平时只见书脊（描述）；用时取下摊开（加载全文）</td>
+      </tr>
+      <tr>
+        <td>台上的<strong>电动工具</strong>（扳手、检测仪）</td>
+        <td>Tool / MCP</td>
+        <td>真正的"手脚"；Skill 常指挥该用哪件</td>
+      </tr>
+      <tr>
+        <td>师傅<strong>练出的手感</strong>（改不动的本能）</td>
+        <td>微调（Fine-tuning）</td>
+        <td>写入参数；对照：Skill 是外挂手册</td>
+      </tr>
+    </table>
+  </div>
+  <div class="box tip">
+    <span class="label">💡 类比的推论</span>
+    <ul style="margin-bottom:0">
+      <li><strong>台面（上下文）是瓶颈也是命脉</strong>：手册再好，摊不开（窗口不够）就发挥不了；台面被杂物占满（上下文污染），手册摊开了也没地方看。</li>
+      <li><strong>手册（Skill）解决的是"稳定性"而非"能力"</strong>：老师傅本来就会修车，手册保证他每次都按同一套规范修——Skill 规范的是 Agent <em>怎么做</em>，不是赋予它新本能。</li>
+      <li><strong>架子越大越要克制</strong>：手册多了，只看书脊也占地方（常驻描述）；描述写得含糊，师傅会拿错手册（误触发/漏触发）。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= 协作流程 ================= -->
+<section id="workflow">
+  <h2>🔄 三者如何协作：一次完整执行</h2>
+  <p>以本仓库真实发生的事情为例——用户输入"<strong>学习概念：Agent</strong>"后发生了什么：</p>
+  <div class="flow">用户请求："学习概念：Agent"
+    │
+    ▼
+① 请求写入【上下文工作台】（与系统提示、对话历史并排摊开）
+    │
+    ▼
+② 【Agent】环视台面：这是一个"生成学习资料"的任务
+    │  同时扫到台边架上各 Skill 的书脊（描述，仅几百 token 常驻）
+    │
+    ▼
+③ 匹配 concept-learner：从架上取下，摊开到台面
+    │  （SKILL.md 全文进入上下文；未匹配的 Skill 依旧收着）
+    │
+    ▼
+④ Agent 按手册干活：解析概念 → 组织五段结构 → 调用写作能力
+    │  （产出过程中，手册内容+已写内容都持续占据台面）
+    │
+    ▼
+⑤ 产出 agent.html → 工具调用把文件路径等结果放回台面 → 汇报用户
+    │
+    ▼
+⑥ 台面留痕：下一轮对话中，Agent 依然"看得见"这次任务的全部经过</div>
+  <p>注意两个要点：<strong>Skill 全程经由上下文生效</strong>（第③步），它不绕开工作台直接"改装" Agent；<strong>Agent 对台面内容自主取舍</strong>（第②步决定用哪个 Skill、第④步决定怎么执行流程）——这正是 Agent 区别于固定流程编排的地方。</p>
+</section>
+
+<!-- ================= 边界与要点 ================= -->
+<section id="boundaries">
+  <h2>⚖️ 常见问题与辨析</h2>
+
+  <h3>Q1：Skill 和上下文是什么关系——是"加载进去"还是"并行工作"？</h3>
+  <p><strong>是加载进去。</strong>Skill 的唯一生效通道就是上下文：所谓"启用 Skill"，就是把 SKILL.md 的文本注入上下文窗口，让 Agent 在后续思考中读到它。因此 Skill 受上下文的一切规律约束——占 token、可能被截断、与台面上其他内容竞争注意力。</p>
+
+  <h3>Q2：Agent、上下文、Skill，谁是"必需品"？</h3>
+  <p><strong>上下文是绝对必需</strong>（没有上下文，模型连"看到任务"都做不到）。Agent 和 Skill 都是<strong>可选的增强</strong>：不拆任务不规划，一个普通对话也能完成任务（那就不是 Agent 形态）；没有 Skill，Agent 靠通用能力也能做，只是输出质量像"临场发挥"而非"按手册办事"。三者齐备 = 既自主又规范。</p>
+
+  <h3>Q3：把所有 Skill 全文常驻上下文，不是更保险吗？</h3>
+  <p><strong>恰恰相反。</strong>这正是"渐进式披露"要避免的：几十份手册全文摊在台面上，等于把工作台变成仓库——关键指令被淹没（上下文污染）、有效注意力被稀释（Lost in the Middle）、成本按 token 计费陡增。<strong>工作台的价值在于"此刻相关"，而非"应有尽有"。</strong></p>
+
+  <h3>Q4：三者的"容量观"如何统一？</h3>
+  <ul style="margin-bottom:0">
+    <li><strong>上下文</strong>是稀缺资源 → 用<strong>检索（RAG）</strong>决定什么上台面；</li>
+    <li><strong>Skill 架</strong>理论无限 → 但描述质量决定路由准确性 → 贵精不贵多；</li>
+    <li><strong>Agent</strong>的规划能力 → 决定台面物料的进出节奏（清理、摘要、外存），是长任务的"台面管家"。</li>
+  </ul>
+</section>
+
+<!-- ================= 参考来源 ================= -->
+<section id="references">
+  <h2>📚 参考来源</h2>
+  <ul class="refs">
+    <li>
+      本仓库配套学习资料（三份单概念详解，本页为其关系综述）：
+      <div class="src">learning-materials/agent.html · learning-materials/llm-context.html · learning-materials/skill.html</div>
+    </li>
+    <li>
+      Anthropic Engineering, <em>Building Effective Agents</em>, 2024-12. —— Agent 与 Workflow/Tool 的架构关系。
+      <div class="src">https://www.anthropic.com/engineering/building-effective-agents</div>
+    </li>
+    <li>
+      Anthropic Engineering, <em>Equipping Agents for the Real World with Agent Skills</em>, 2025. —— Skill 的渐进式披露与上下文关系。
+      <div class="src">https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills</div>
+    </li>
+    <li>
+      Liu, N. F. et al. <em>Lost in the Middle: How Language Models Use Long Contexts</em>, TACL 2024. —— 上下文中部信息利用偏差。
+      <div class="src">https://arxiv.org/abs/2307.03172</div>
+    </li>
+    <li>
+      Lewis, P. et al. <em>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</em>, NeurIPS 2020. —— "按需上台面"的检索思路来源。
+      <div class="src">https://arxiv.org/abs/2005.11401</div>
+    </li>
+  </ul>
+</section>
+
+</main>
+
+<footer>由 concept-learner 生成 · 概念关系综述：Agent × 上下文 × Skill · 可离线浏览</footer>
+
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent（智能体） - 学习资料</title>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#ffffff; --text:#24292f; --muted:#57606a;
+    --accent:#3b82f6; --accent-soft:#eff6ff; --border:#e5e7eb;
+    --warn:#b45309; --warn-soft:#fffbeb; --ok:#047857; --ok-soft:#ecfdf5;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.75; padding-bottom:60px;
+  }
+  header{
+    background:linear-gradient(135deg,#1e3a8a 0%,#3b82f6 100%);
+    color:#fff; padding:48px 24px 40px; text-align:center;
+  }
+  header h1{font-size:2rem; margin-bottom:10px;}
+  header .def{max-width:720px; margin:0 auto; font-size:1.05rem; opacity:.92;}
+  header .tag{
+    display:inline-block; margin-bottom:14px; padding:3px 14px; border-radius:999px;
+    background:rgba(255,255,255,.18); font-size:.85rem; letter-spacing:1px;
+  }
+  nav{
+    position:sticky; top:0; z-index:10; background:var(--card);
+    border-bottom:1px solid var(--border); padding:10px 16px;
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+  }
+  nav a{
+    color:var(--accent); text-decoration:none; font-size:.9rem;
+    padding:4px 12px; border-radius:6px; background:var(--accent-soft);
+  }
+  nav a:hover{background:#dbeafe;}
+  main{max-width:860px; margin:0 auto; padding:24px 20px;}
+  section{
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:28px 26px; margin-bottom:24px;
+  }
+  h2{
+    font-size:1.35rem; margin-bottom:18px; padding-bottom:10px;
+    border-bottom:2px solid var(--accent-soft); display:flex; align-items:center; gap:10px;
+  }
+  h2 .num{
+    background:var(--accent); color:#fff; width:28px; height:28px; border-radius:8px;
+    display:inline-flex; align-items:center; justify-content:center; font-size:.9rem; flex:none;
+  }
+  h3{font-size:1.05rem; margin:18px 0 8px; color:#1e3a8a;}
+  p{margin-bottom:12px;}
+  ul,ol{margin:0 0 12px 22px;}
+  li{margin-bottom:6px;}
+  .term{color:#1d4ed8; font-weight:600;}
+  .box{
+    border-radius:10px; padding:14px 16px; margin:14px 0; border:1px solid var(--border);
+  }
+  .box.tip{background:var(--accent-soft); border-color:#bfdbfe;}
+  .box.warn{background:var(--warn-soft); border-color:#fde68a;}
+  .box.ok{background:var(--ok-soft); border-color:#a7f3d0;}
+  .box .label{font-weight:700; display:block; margin-bottom:6px;}
+  .box.tip .label{color:#1d4ed8;}
+  .box.warn .label{color:var(--warn);}
+  .box.ok .label{color:var(--ok);}
+  .case{
+    border-left:4px solid var(--accent); background:#fafbfc;
+    border-radius:0 10px 10px 0; padding:14px 18px; margin:16px 0;
+  }
+  .case .case-tag{
+    display:inline-block; font-size:.78rem; background:var(--accent-soft);
+    color:#1d4ed8; padding:2px 10px; border-radius:999px; margin-bottom:8px; font-weight:600;
+  }
+  .case.counter{border-left-color:var(--warn);}
+  .case.counter .case-tag{background:var(--warn-soft); color:var(--warn);}
+  details{
+    border:1px solid var(--border); border-radius:10px; margin:10px 0; background:#fafbfc;
+  }
+  details summary{
+    cursor:pointer; padding:12px 16px; font-weight:600; list-style:none; user-select:none;
+  }
+  details summary::-webkit-details-marker{display:none;}
+  details summary::before{content:"▸ "; color:var(--accent);}
+  details[open] summary::before{content:"▾ ";}
+  details .ans{padding:0 16px 14px; border-top:1px dashed var(--border); padding-top:12px;}
+  details .ans .goal{
+    display:inline-block; font-size:.75rem; color:var(--muted);
+    background:var(--bg); padding:2px 10px; border-radius:999px; margin-top:8px;
+  }
+  .btn-all{
+    display:block; margin:16px auto 4px; padding:8px 22px; border:none; border-radius:8px;
+    background:var(--accent); color:#fff; font-size:.9rem; cursor:pointer;
+  }
+  .btn-all:hover{background:#2563eb;}
+  .refs li{margin-bottom:10px;}
+  .refs .src{color:var(--muted); font-size:.88rem;}
+  footer{text-align:center; color:var(--muted); font-size:.85rem; padding:12px;}
+  @media (max-width:600px){
+    header h1{font-size:1.5rem;}
+    section{padding:20px 16px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="tag">AI / 计算机科学 · 学习资料</span>
+  <h1>Agent（智能体）</h1>
+  <p class="def">一句话定义：<strong>Agent 是能够感知环境、自主决策并采取行动以达成目标的系统</strong>——在 AI 领域，通常指以大语言模型为"大脑"、能规划任务并调用工具完成的程序。</p>
+</header>
+
+<nav>
+  <a href="#objectives">学习目标</a>
+  <a href="#explanation">概念解释</a>
+  <a href="#examples">案例</a>
+  <a href="#quiz">自测题</a>
+  <a href="#references">参考来源</a>
+</nav>
+
+<main>
+
+<!-- ================= 1. 学习目标 ================= -->
+<section id="objectives">
+  <h2><span class="num">1</span>学习目标</h2>
+  <p>学完本资料后，你应当能够：</p>
+  <ol>
+    <li><strong>解释</strong> Agent 的核心构成要素（感知—决策—行动—目标），并用自己的话向他人说明"Agent 和普通程序/聊天机器人的区别"。</li>
+    <li><strong>区分</strong> Agent 与 Workflow（固定流程编排）、Agent 与 Chatbot（纯对话）的边界。</li>
+    <li><strong>分析</strong>一个具体的 AI 系统是否算 Agent：判断它是否具备自主性、目标导向性和环境交互能力。</li>
+    <li><strong>应用</strong> ReAct 等"推理 + 行动"的基本范式，描述一个简单 Agent 解决任务的循环过程。</li>
+    <li><strong>评估</strong> Agent 方案的适用场景与风险（何时该用 Agent，何时用固定流程更稳妥）。</li>
+  </ol>
+</section>
+
+<!-- ================= 2. 概念解释 ================= -->
+<section id="explanation">
+  <h2><span class="num">2</span>概念解释</h2>
+
+  <h3>🟢 一句话版本</h3>
+  <p>Agent 是一个"给了目标就能自己想办法干活"的程序。</p>
+
+  <h3>🟡 直观版本</h3>
+  <p>想象你雇了一位助理。你不会手把手教他每一步，而是告诉他："帮我订一张下周去上海的最便宜的机票。"这位助理会自己<strong>拆解任务</strong>（查日期 → 比价格 → 选航班 → 下单），过程中<strong>使用工具</strong>（打开订票网站、调用支付），遇到问题会<strong>调整方案</strong>（那天的直达票太贵，就考虑中转），最后<strong>汇报结果</strong>。</p>
+  <p>Agent 就是这样的数字助理：普通程序像一台<strong>自动售货机</strong>（按固定按钮出固定饮料），而 Agent 像一位<strong>有判断力的员工</strong>——你给目标，它自己决定怎么做。</p>
+  <div class="box tip">
+    <span class="label">💡 关键直觉</span>
+    判断是不是 Agent，问一个问题：<em>"它做事的路径是谁定的？"</em> 路径写死在代码里 → 普通程序；路径由它自己临时规划 → 更接近 Agent。
+  </div>
+
+  <h3>🔵 严谨版本</h3>
+  <p>在学术定义中（Russell &amp; Norvig《人工智能：现代方法》），Agent 是<strong>通过传感器感知环境、通过执行器作用于环境的任何实体</strong>，其行为可用"感知序列到行动的映射"（策略 π）描述。形式化地，Agent = 感知（Perceive）+ 决策（Decide）+ 行动（Act），在环境 E 中追求目标 G 或最大化效用函数 U。</p>
+  <p>当代 AI 工程语境下的 <strong>LLM-based Agent</strong> 通常包含四个模块：</p>
+  <ul>
+    <li><span class="term">规划（Planning）</span>：将目标分解为子任务，常用的范式如 <strong>ReAct</strong>（Reason + Act，推理与行动交替进行）、思维链（CoT）、任务反思与重试（Reflexion）。</li>
+    <li><span class="term">记忆（Memory）</span>：短期记忆（对话上下文）与长期记忆（向量库检索、文件持久化）。</li>
+    <li><span class="term">工具使用（Tool Use）</span>：通过函数调用（Function Calling）操作搜索、代码执行、数据库、API 等外部能力。</li>
+    <li><span class="term">环境交互（Environment）</span>：Agent 所作用的对象，如操作系统、互联网、软件界面。</li>
+  </ul>
+  <p><strong>与相邻概念的边界：</strong></p>
+  <ul>
+    <li><strong>vs. Chatbot（聊天机器人）</strong>：Chatbot 以对话本身为产出；Agent 以"任务的完成"为产出，对话只是手段。</li>
+    <li><strong>vs. Workflow（工作流）</strong>：Workflow 的步骤和分支由开发者预先编排，确定性高；Agent 的步骤由模型在运行时自主决定，灵活但可控性低。实践中常组合使用（Workflow 中嵌 Agent 节点）。</li>
+    <li><strong>vs. Multi-Agent System（多智能体系统）</strong>：多个 Agent 分工协作（如规划者 + 执行者 + 审查者），是 Agent 概念的扩展形态。</li>
+  </ul>
+  <div class="box warn">
+    <span class="label">⚠️ 常见误解</span>
+    <ul>
+      <li><em>"接了 API 就是 Agent。"</em> —— 不对。关键在<strong>自主决策</strong>，而非调用了多少外部能力。一个只按固定规则调 API 的程序不是 Agent。</li>
+      <li><em>"Agent 一定更高级、更好。"</em> —— 不对。自主性带来灵活性的同时引入不可预测性和调试成本，Anthropic 在其构建经验中明确指出：<strong>能用 Workflow 解决的，就别上 Agent</strong>。</li>
+      <li><em>"Agent = 机器人。"</em> —— 物理机器人只是 Agent 的一种载体（实体 Agent）；大量 Agent 是纯软件形态。</li>
+    </ul>
+  </div>
+
+  <h3>📜 来龙去脉</h3>
+  <p>"Agent" 概念源于 1950–60 年代的控制论与早期 AI（如维纳的反馈控制思想）。1995 年，Wooldridge 与 Jennings 的经典论文《Intelligent Agents: Theory and Practice》系统化了软件 Agent 研究。2022 年 ReAct 论文与 2023 年 AutoGPT 的爆火，使"LLM + 工具 + 循环"成为当代 Agent 的主流形态；2025 年前后，MCP（Model Context Protocol）等协议进一步标准化了 Agent 与外部工具的连接方式。</p>
+</section>
+
+<!-- ================= 3. 案例 ================= -->
+<section id="examples">
+  <h2><span class="num">3</span>案例</h2>
+
+  <div class="case">
+    <span class="case-tag">日常案例 · 难度 ★</span>
+    <p><strong>情境：</strong>你对手机助手说"提醒我明天出门带伞"。</p>
+    <p><strong>概念体现：</strong>助手感知到请求（输入），查询明天的天气（调用工具），发现降雨概率 70%，于是创建了一条"明早出门前提醒"（行动），服务于"不被淋湿"的隐含目标。感知 → 决策 → 行动 → 目标，四要素齐备——这是一个（轻量的）Agent 行为。</p>
+    <p><strong>结论：</strong>即使很小的任务，只要决策路径是系统根据目标自主选定的，就体现了 Agent 性质。</p>
+  </div>
+
+  <div class="case">
+    <span class="case-tag">行业案例 · 难度 ★★★</span>
+    <p><strong>情境：</strong>一个编程 Agent（如 Claude Code、Cursor Agent）收到任务："修复这个仓库里登录接口的 bug。"</p>
+    <p><strong>概念体现：</strong>它自主规划步骤：读取报错日志 → 用 grep 搜索相关代码 → 阅读函数实现 → 定位空指针问题 → 修改代码 → 运行测试 → 测试失败 → 反思原因再修改 → 测试通过 → 提交。整个过程没有人事先写死步骤，路径是模型在循环中逐步生成的（典型 ReAct 模式），并且利用了<strong>反思重试</strong>这一 Agent 特有的纠错机制。</p>
+    <p><strong>结论：</strong>编程是 Agent 落地最成功的领域之一，因为环境（代码库 + 测试）反馈明确，成功与否可以被客观验证。</p>
+  </div>
+
+  <div class="case">
+    <span class="case-tag">进阶案例 · 难度 ★★★★</span>
+    <p><strong>情境：</strong>客服系统中，商家希望"自动处理退款申请"。</p>
+    <p><strong>概念体现：</strong>设计者采用 <strong>Multi-Agent 架构</strong>：一个"分类 Agent"判断申请类型与金额，一个"核查 Agent"查询订单与物流记录，金额小于阈值的直接由"执行 Agent"退款，大额或可疑的转人工。多个 Agent 各司其职、互相传递结果，共同完成一个复杂业务目标。</p>
+    <p><strong>结论：</strong>当任务复杂到单一角色难以覆盖时，把 Agent 按职能拆分（规划者/执行者/审查者）是常见工程模式，本质是对人类团队分工的模拟。</p>
+  </div>
+
+  <div class="case counter">
+    <span class="case-tag">反例 · 什么不是 Agent</span>
+    <p><strong>情境：</strong>一个"智能客服"，用户点按钮进入"退款"分支，程序按 if-else 弹出固定话术，最后生成一张工单。全程没有任何模型自主决策。</p>
+    <p><strong>辨析：</strong>它有输入、有输出、甚至有"流程"，但<strong>每一步路径都是开发者预定义的</strong>——它是 Workflow（或决策树），不是 Agent。它再"智能"，也只是自动化，不是自主化。</p>
+    <p><strong>结论：</strong>判断标准不在交互形态像不像人，而在<strong>决策权在谁手里</strong>。</p>
+  </div>
+</section>
+
+<!-- ================= 4. 自测题 ================= -->
+<section id="quiz">
+  <h2><span class="num">4</span>自测题</h2>
+  <p>先自己作答，再点击展开答案与解析。</p>
+
+  <details>
+    <summary>第 1 题（单选）Agent 区别于普通程序的最核心特征是？</summary>
+    <div class="ans">
+      <p><strong>答案：B</strong></p>
+      <p>A. 能联网调用 API&nbsp;&nbsp;B. 运行时自主决定行动路径&nbsp;&nbsp;C. 界面用自然语言交互&nbsp;&nbsp;D. 运行速度更快</p>
+      <p>解析：调用 API、自然语言交互都只是表象，固定 if-else 也能做到；核心区别是"决策权"从开发者转移到了系统本身（对应解释部分的"关键直觉"）。</p>
+      <span class="goal">考察学习目标 1、2</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 2 题（单选）"LLM + 工具调用 + 循环（观察结果后再决定下一步）"描述的经典范式是？</summary>
+    <div class="ans">
+      <p><strong>答案：C</strong></p>
+      <p>A. Transformer&nbsp;&nbsp;B. RAG&nbsp;&nbsp;C. ReAct&nbsp;&nbsp;D. GAN</p>
+      <p>解析：ReAct = Reason + Act，推理与行动交替，是当代 LLM Agent 的基础范式。RAG 是检索增强生成，属于"记忆"模块的一种实现。</p>
+      <span class="goal">考察学习目标 4</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 3 题（判断）只要一个系统使用了大语言模型，它就是 Agent。</summary>
+    <div class="ans">
+      <p><strong>答案：错误</strong></p>
+      <p>解析：纯对话的 Chatbot 也使用 LLM，但它以对话为产出、无目标驱动的自主行动。LLM 只是 Agent 常用的"大脑"组件，不构成充分条件。</p>
+      <span class="goal">考察学习目标 2</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 4 题（判断）Workflow 的确定性比 Agent 高，所以在所有场景下都应该优先用 Workflow。</summary>
+    <div class="ans">
+      <p><strong>答案：错误</strong></p>
+      <p>解析：前半句正确，但结论过度。面对<strong>步骤无法预先穷举</strong>的开放性任务（如"修复一个未知 bug"），Workflow 无法胜任，必须交给 Agent 在运行时自主探索。正确原则是"能 Workflow 则 Workflow，必须自主时才 Agent"。</p>
+      <span class="goal">考察学习目标 5</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 5 题（简答）说出 LLM-based Agent 的四个核心模块，并各举一个实现方式。</summary>
+    <div class="ans">
+      <p><strong>参考答案：</strong>① 规划（如 ReAct 循环、任务分解）；② 记忆（如对话上下文作短期记忆、向量数据库作长期记忆）；③ 工具使用（如 Function Calling 调用搜索/代码执行）；④ 环境交互（如操作系统、浏览器、软件 API）。</p>
+      <span class="goal">考察学习目标 1</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 6 题（简答）为什么说"编程"是 Agent 最容易成功的落地领域之一？</summary>
+    <div class="ans">
+      <p><strong>参考答案：</strong>因为编程环境的反馈<strong>客观且即时</strong>：代码要么编译通过要么报错，测试要么通过要么失败，Agent 的每一步行动都能得到明确信号来修正路线（可验证性强），大幅降低了自主决策跑偏的风险。相反，在反馈模糊的领域（如开放式写作），Agent 的自主性更难自我纠错。</p>
+      <span class="goal">考察学习目标 3、5</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 7 题（应用题）判断以下场景是否适合用 Agent，说明理由：每晚 22 点自动把当天的销售数据汇总成报表发到邮箱。</summary>
+    <div class="ans">
+      <p><strong>参考答案：不适合，用 Workflow/定时脚本更合适。</strong>理由：该任务目标明确、步骤固定、无运行时不确定性（取数 → 统计 → 渲染 → 发送），用确定性的自动化管道即可完成，更可靠、更便宜、更易调试。引入 Agent 只会增加不可预测性和成本。若需求改为"分析今天的销售异常并自主决定如何跟进"，才需要 Agent 的判断力。</p>
+      <span class="goal">考察学习目标 3、5（应用与评估）</span>
+    </div>
+  </details>
+
+  <button class="btn-all" onclick="document.querySelectorAll('details').forEach(d=>d.open=true)">显示全部答案</button>
+</section>
+
+<!-- ================= 5. 参考来源 ================= -->
+<section id="references">
+  <h2><span class="num">5</span>参考来源</h2>
+  <ul class="refs">
+    <li>
+      Russell, S. &amp; Norvig, P. <em>Artificial Intelligence: A Modern Approach</em>（第 4 版）, Pearson, 2021. —— 第 2 章 "Intelligent Agents"，Agent 的经典学术定义。
+      <div class="src">教材 · 图书馆/电商可获取</div>
+    </li>
+    <li>
+      Yao, S. et al. <em>ReAct: Synergizing Reasoning and Acting in Language Models</em>, ICLR 2023.
+      <div class="src">原始论文 · arXiv:2210.03629 · https://arxiv.org/abs/2210.03629</div>
+    </li>
+    <li>
+      Anthropic Engineering, <em>Building Effective Agents</em>, 2024-12.
+      <div class="src">工程实践指南 · https://www.anthropic.com/engineering/building-effective-agents</div>
+    </li>
+    <li>
+      Wooldridge, M. &amp; Jennings, N. R. <em>Intelligent Agents: Theory and Practice</em>, The Knowledge Engineering Review, 1995.
+      <div class="src">软件 Agent 经典论文 · DOI: 10.1017/S0269888900008122</div>
+    </li>
+    <li>
+      Wang, L. et al. <em>A Survey on Large Language Model based Autonomous Agents</em>, Frontiers of Computer Science, 2024.
+      <div class="src">综述论文 · arXiv:2308.11432 · https://arxiv.org/abs/2308.11432</div>
+    </li>
+    <li>
+      Wikipedia: <em>Intelligent Agent</em>.
+      <div class="src">https://en.wikipedia.org/wiki/Intelligent_agent</div>
+    </li>
+  </ul>
+</section>
+
+</main>
+
+<footer>由 concept-learner 生成 · 学习概念：Agent（智能体）· 可离线浏览</footer>
+
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill（技能包） - 学习资料</title>
+<style>
+  :root{
+    --bg:#f7f8fa; --card:#ffffff; --text:#24292f; --muted:#57606a;
+    --accent:#0d9488; --accent-soft:#eff9f8; --border:#e5e7eb;
+    --warn:#b45309; --warn-soft:#fffbeb; --ok:#047857; --ok-soft:#ecfdf5;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.75; padding-bottom:60px;
+  }
+  header{
+    background:linear-gradient(135deg,#134e4a 0%,#0d9488 100%);
+    color:#fff; padding:48px 24px 40px; text-align:center;
+  }
+  header h1{font-size:2rem; margin-bottom:10px;}
+  header .def{max-width:720px; margin:0 auto; font-size:1.05rem; opacity:.92;}
+  header .tag{
+    display:inline-block; margin-bottom:14px; padding:3px 14px; border-radius:999px;
+    background:rgba(255,255,255,.18); font-size:.85rem; letter-spacing:1px;
+  }
+  nav{
+    position:sticky; top:0; z-index:10; background:var(--card);
+    border-bottom:1px solid var(--border); padding:10px 16px;
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+  }
+  nav a{
+    color:#0f766e; text-decoration:none; font-size:.9rem;
+    padding:4px 12px; border-radius:6px; background:var(--accent-soft);
+  }
+  nav a:hover{background:#d5efec;}
+  main{max-width:860px; margin:0 auto; padding:24px 20px;}
+  section{
+    background:var(--card); border:1px solid var(--border); border-radius:12px;
+    padding:28px 26px; margin-bottom:24px;
+  }
+  h2{
+    font-size:1.35rem; margin-bottom:18px; padding-bottom:10px;
+    border-bottom:2px solid var(--accent-soft); display:flex; align-items:center; gap:10px;
+  }
+  h2 .num{
+    background:var(--accent); color:#fff; width:28px; height:28px; border-radius:8px;
+    display:inline-flex; align-items:center; justify-content:center; font-size:.9rem; flex:none;
+  }
+  h3{font-size:1.05rem; margin:18px 0 8px; color:#134e4a;}
+  p{margin-bottom:12px;}
+  ul,ol{margin:0 0 12px 22px;}
+  li{margin-bottom:6px;}
+  .term{color:#0f766e; font-weight:600;}
+  .box{
+    border-radius:10px; padding:14px 16px; margin:14px 0; border:1px solid var(--border);
+  }
+  .box.tip{background:var(--accent-soft); border-color:#b8e3df;}
+  .box.warn{background:var(--warn-soft); border-color:#fde68a;}
+  .box.ok{background:var(--ok-soft); border-color:#a7f3d0;}
+  .box .label{font-weight:700; display:block; margin-bottom:6px;}
+  .box.tip .label{color:#0f766e;}
+  .box.warn .label{color:var(--warn);}
+  .box.ok .label{color:var(--ok);}
+  .case{
+    border-left:4px solid var(--accent); background:#fafbfc;
+    border-radius:0 10px 10px 0; padding:14px 18px; margin:16px 0;
+  }
+  .case .case-tag{
+    display:inline-block; font-size:.78rem; background:var(--accent-soft);
+    color:#0f766e; padding:2px 10px; border-radius:999px; margin-bottom:8px; font-weight:600;
+  }
+  .case.counter{border-left-color:var(--warn);}
+  .case.counter .case-tag{background:var(--warn-soft); color:var(--warn);}
+  details{
+    border:1px solid var(--border); border-radius:10px; margin:10px 0; background:#fafbfc;
+  }
+  details summary{
+    cursor:pointer; padding:12px 16px; font-weight:600; list-style:none; user-select:none;
+  }
+  details summary::-webkit-details-marker{display:none;}
+  details summary::before{content:"▸ "; color:var(--accent);}
+  details[open] summary::before{content:"▾ ";}
+  details .ans{padding:0 16px 14px; border-top:1px dashed var(--border); padding-top:12px;}
+  details .ans .goal{
+    display:inline-block; font-size:.75rem; color:var(--muted);
+    background:var(--bg); padding:2px 10px; border-radius:999px; margin-top:8px;
+  }
+  .btn-all{
+    display:block; margin:16px auto 4px; padding:8px 22px; border:none; border-radius:8px;
+    background:var(--accent); color:#fff; font-size:.9rem; cursor:pointer;
+  }
+  .btn-all:hover{background:#0f766e;}
+  .refs li{margin-bottom:10px;}
+  .refs .src{color:var(--muted); font-size:.88rem;}
+  .diagram{
+    background:#fafbfc; border:1px dashed var(--border); border-radius:10px;
+    padding:16px; margin:14px 0; font-family:Consolas,monospace; font-size:.85rem;
+    white-space:pre; overflow-x:auto; line-height:1.5;
+  }
+  footer{text-align:center; color:var(--muted); font-size:.85rem; padding:12px;}
+  @media (max-width:600px){
+    header h1{font-size:1.5rem;}
+    section{padding:20px 16px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="tag">AI / 提示工程 · 学习资料</span>
+  <h1>Skill（技能包）</h1>
+  <p class="def">一句话定义：<strong>Skill 是一份打包好的"操作说明书"，让 AI 助手在特定任务上按既定流程、用对工具、产出规范结果——相当于给 AI 发一本《标准作业手册（SOP）》</strong>。</p>
+</header>
+
+<nav>
+  <a href="#objectives">学习目标</a>
+  <a href="#explanation">概念解释</a>
+  <a href="#examples">案例</a>
+  <a href="#quiz">自测题</a>
+  <a href="#references">参考来源</a>
+</nav>
+
+<main>
+
+<!-- ================= 1. 学习目标 ================= -->
+<section id="objectives">
+  <h2><span class="num">1</span>学习目标</h2>
+  <p>学完本资料后，你应当能够：</p>
+  <ol>
+    <li><strong>解释</strong> Skill 的本质（结构化提示 + 参考资源 + 工作流程），说明它与随手写的 prompt 的区别。</li>
+    <li><strong>拆解</strong> 一个典型 Skill 的组成部分：元信息（frontmatter）、触发条件、指令正文、捆绑资源。</li>
+    <li><strong>区分</strong> Skill、System Prompt、Tool/MCP、微调四种"扩展 AI 能力"的手段及各自适用边界。</li>
+    <li><strong>设计</strong> 一个简单 Skill：明确触发词、把隐性经验写成显性步骤、设置约束防止跑偏。</li>
+    <li><strong>评估</strong> 什么时候值得把一段常用 prompt 沉淀为 Skill，以及 Skill 失效的典型原因。</li>
+  </ol>
+</section>
+
+<!-- ================= 2. 概念解释 ================= -->
+<section id="explanation">
+  <h2><span class="num">2</span>概念解释</h2>
+
+  <h3>🟢 一句话版本</h3>
+  <p>Skill 就是"AI 的岗位技能卡"：遇到某类任务时自动掏出来照着做，做完的效果像一位受过培训的老手。</p>
+
+  <h3>🟡 直观版本</h3>
+  <p>新员工入职第一天，什么都要现学；而老员工的抽屉里放着<strong>一摞操作手册</strong>——"处理客诉看这本、报销走那张流程卡、周报用这个模板"。新员工每次都靠临场发挥（质量不稳定），老员工按手册办事（又快又规范）。</p>
+  <p>Skill 就是塞进 AI "抽屉"里的手册。区别在于：<strong>启用时机由 AI 自己判断</strong>——你说"帮我写周报"，它认出这匹配"周报技能卡"的触发条件，就把手册翻出来照着执行。你不用每次重新教，它也不会因为今天状态不同就换一套做法。</p>
+  <div class="box tip">
+    <span class="label">💡 关键直觉</span>
+    Prompt 是<strong>一次性的口头交代</strong>，Skill 是<strong>沉淀下来的书面 SOP</strong>。判断标准：这段经验值得<strong>复用</strong>吗？要复用，就沉淀成 Skill；一次性任务，直接 prompt 即可。
+  </div>
+
+  <h3>🔵 严谨版本</h3>
+  <p>在当代 AI 工程语境（以 Anthropic 于 2024 年 10 月发布的 Agent Skills 为代表）中，一个 Skill 是<strong>一个文件夹</strong>，核心是 <code>SKILL.md</code> 文件，通常还捆绑脚本与参考资源：</p>
+  <ul>
+    <li><span class="term">元信息（YAML frontmatter）</span>：名称、描述（description）、版本等。其中<strong>描述最关键</strong>——模型只靠读它来判断"当前任务要不要加载这个 Skill"，写得太笼统就会漏触发或误触发。</li>
+    <li><span class="term">指令正文</span>：Markdown 写成的工作流程——步骤、规范、约束、易错点。这是 Skill 的"灵魂"，本质是<strong>结构化的提示词</strong>。</li>
+    <li><span class="term">捆绑资源（可选）</span>：可执行的脚本（scripts/）、参考文档（references/）、模板文件（assets/）等，随指令按需使用。</li>
+  </ul>
+  <p><strong>运行机制：</strong>Skill 采用<strong>渐进式披露（Progressive Disclosure）</strong>——平时只有"名字 + 描述"常驻模型的上下文（占用极小），任务匹配时才把 SKILL.md 全文载入，需要时再读取捆绑资源。这解决了"经验多了塞不下上下文"的问题：不是全背下来，而是<strong>用到了才翻手册</strong>。</p>
+  <div class="diagram">用户请求 ──► 模型扫描各 Skill 的描述（仅几百 token 常驻）
+              │
+              ├─ 不匹配 ──► 正常回答（不加载任何 Skill）
+              │
+              └─ 匹配 ──► 载入 SKILL.md 全文 ──► 按流程执行
+                              │
+                              └─ 需要时 ──► 读取捆绑的脚本/模板/参考文档</div>
+  <p><strong>与相邻概念的边界：</strong></p>
+  <ul>
+    <li><strong>vs. System Prompt（系统提示词）</strong>：System Prompt 是"人格底座"，<strong>每次都全量在场</strong>；Skill 是"专项手册"，按需加载。System Prompt 塞太多规则会挤占上下文且互相稀释——这正是 Skill 要解决的问题。</li>
+    <li><strong>vs. Tool / MCP（工具）</strong>：Tool 给模型新的<strong>手脚</strong>（能调 API、能读数据库）；Skill 给模型新的<strong>章法</strong>（知道什么场景该做什么、怎么做才对）。二者互补：Skill 里常写明"何时调用哪个 Tool"。</li>
+    <li><strong>vs. Fine-tuning（微调）</strong>：微调把能力烧进参数，改不动、成本高、但推理时不占上下文；Skill 是纯文本，随时可编辑、可版本管理（甚至放进 Git），但每次执行都占上下文。经验频繁迭代 → Skill；能力需要内化到"条件反射" → 微调。</li>
+    <li><strong>vs. Prompt 库/收藏夹</strong>：Prompt 库需要<strong>人</strong>想起来去复制粘贴；Skill 由<strong>模型自动判断</strong>要不要用——自动化触发是分水岭。</li>
+  </ul>
+  <div class="box warn">
+    <span class="label">⚠️ 常见误解</span>
+    <ul>
+      <li><em>"Skill 是给模型安装的新功能。"</em> —— 不对。模型本身没变，Skill 只是<strong>在正确的时机注入正确的指令</strong>，让已有能力被规范地引导出来。</li>
+      <li><em>"描述写得越全面越好。"</em> —— 恰恰相反。描述是"触发器"，应当精准概括<strong>什么任务该用它</strong>；详细流程放正文，避免常驻上下文的浪费。</li>
+      <li><em>"有了 Skill 就万无一失。"</em> —— Skill 是软约束，模型仍可能跳步或跑偏；关键步骤的产出需要检查项（checklist）兜底。</li>
+    </ul>
+  </div>
+
+  <h3>📜 来龙去脉</h3>
+  <p>"把提示词模块化复用"的实践早已有之（Prompt 模板、SOP 提示）。2024 年 10 月，Anthropic 发布 Agent Skills 规范，把这一实践标准化为"文件夹 + SKILL.md + 渐进式披露"的形式，Claude 4/4.5 及第三方 Agent 框架（含 WorkBuddy 等助手产品）相继采纳，形成可分享、可安装的 Skill 生态——Skill 从个人备忘升级为<strong>可流通的经验资产</strong>。本仓库 <code>.workbuddy/skills/concept-learner/</code> 下的 SKILL.md 就是一个实例。</p>
+</section>
+
+<!-- ================= 3. 案例 ================= -->
+<section id="examples">
+  <h2><span class="num">3</span>案例</h2>
+
+  <div class="case">
+    <span class="case-tag">日常案例 · 难度 ★</span>
+    <p><strong>情境：</strong>你每天都让 AI"把这段会议录音整理成纪要"，前几次效果不错，后来某天它突然换了格式，还漏掉了待办事项。</p>
+    <p><strong>概念体现：</strong>每次现写 prompt = 每次口头交代，质量随当天发挥波动。把要求沉淀为"会议纪要 Skill"（固定结构：决议/待办/责任人 + 触发词"整理纪要"）后，每次执行都走同一套章法，输出稳定可预期。</p>
+    <p><strong>结论：</strong>Skill 的第一价值是<strong>一致性</strong>——把"偶发的好表现"变成"每次的默认表现"。</p>
+  </div>
+
+  <div class="case">
+    <span class="case-tag">行业案例 · 难度 ★★★</span>
+    <p><strong>情境：</strong>数据分析师的 AI 助手要处理"各类数据文件"：Excel 用一套流程（读表头 → 判断类型 → 公式校验），CSV 又是一套，遇到 PDF 附录还要先抽取表格。</p>
+    <p><strong>概念体现：</strong>这些差异化的操作知识被写成若干个 Skill（表格处理 Skill、数据清洗 Skill），各自携带捆绑的校验脚本。模型接到"清洗这个 CSV"时自动匹配对应 Skill 并调用其脚本——<strong>领域经验以 Skill 形式在团队内分发</strong>，新成员的助手装上即用，无需口口相传。</p>
+    <p><strong>结论：</strong>Skill 让组织里的<strong>隐性经验显性化、资产化</strong>，是团队知识管理的 AI 版落地。</p>
+  </div>
+
+  <div class="case">
+    <span class="case-tag">进阶案例 · 难度 ★★★★</span>
+    <p><strong>情境：</strong>本仓库正在使用的 concept-learner Skill：触发词是"学习/生成某概念的学习资料"。</p>
+    <p><strong>概念体现：</strong>它体现了 Skill 设计的多个要点——① 元信息里写清触发条件（"当用户说'帮我学习 X'……"）；② 正文把"好学习资料长什么样"的隐性标准写成了显性规范（五段结构、三层解释、答案折叠、禁止编造链接）；③ 指定了输出位置和命名规则（learning-materials/&lt;slug&gt;.html），使每次产出可预测；④ 附自检步骤，防止模型偷工减料。</p>
+    <p><strong>结论：</strong>写好一个 Skill 的核心功力，是把你"心里知道但没说出口"的质量标准<strong>全部写出来</strong>——模型不会读心，只会读字。</p>
+  </div>
+
+  <div class="case counter">
+    <span class="case-tag">反例 · 什么不该做成 Skill</span>
+    <p><strong>情境：</strong>某人把"翻译这段话成英文"也做成了 Skill，正文只有一句"请翻译成英文"。</p>
+    <p><strong>辨析：</strong>该任务模型本来就会做，指令无增量经验、无流程、无规范——这是<strong>把 prompt 包装成 Skill 的过度工程</strong>。它不仅没收益，还多占常驻上下文、增加误触发面。Skill 的判断标准是"有没有<strong>值得复用的经验</strong>"，而不是"是不是一个 prompt"。</p>
+    <p><strong>结论：</strong>一次性任务用 prompt，重复出现的专业流程才值得沉淀为 Skill。</p>
+  </div>
+</section>
+
+<!-- ================= 4. 自测题 ================= -->
+<section id="quiz">
+  <h2><span class="num">4</span>自测题</h2>
+  <p>先自己作答，再点击展开答案与解析。</p>
+
+  <details>
+    <summary>第 1 题（单选）Skill 与普通 prompt 最核心的区别是？</summary>
+    <div class="ans">
+      <p><strong>答案：C</strong></p>
+      <p>A. Skill 用了更高级的模型&nbsp;&nbsp;B. Skill 一定包含可执行脚本&nbsp;&nbsp;C. Skill 是可复用、可自动触发匹配的沉淀经验&nbsp;&nbsp;D. Skill 不能修改</p>
+      <p>解析：Skill 本质仍是文本指令（不一定带脚本），但它被持久化保存、由模型根据描述自动判断启用，且随时可编辑。复用 + 自动匹配是它与"口头交代式 prompt"的分水岭。</p>
+      <span class="goal">考察学习目标 1、3</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 2 题（单选）在 Skill 的 YAML frontmatter 中，决定"模型会不会用上这个 Skill"的最关键字段是？</summary>
+    <div class="ans">
+      <p><strong>答案：B</strong></p>
+      <p>A. name&nbsp;&nbsp;B. description&nbsp;&nbsp;C. version&nbsp;&nbsp;D. 作者信息</p>
+      <p>解析：渐进式披露机制下，模型平时只能看到描述，凭它判断是否加载全文。描述写得含糊会导致漏触发（该用没用）或误触发（不该用却用了）。</p>
+      <span class="goal">考察学习目标 2</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 3 题（判断）Skill 会改变模型本身的参数，相当于一次轻量微调。</summary>
+    <div class="ans">
+      <p><strong>答案：错误</strong></p>
+      <p>解析：Skill 是纯文本注入，运行时占上下文，不触碰模型参数；微调则通过训练永久改写参数。两者一个"外挂手册"、一个"内化肌肉记忆"，机制完全不同。</p>
+      <span class="goal">考察学习目标 3</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 4 题（判断）"渐进式披露"的意思是：所有 Skill 的全文始终驻留在上下文中，确保随时可用。</summary>
+    <div class="ans">
+      <p><strong>答案：错误</strong></p>
+      <p>解析：恰好相反。平时只有"名称 + 描述"以极小代价常驻；正文在任务匹配时才加载，捆绑资源按需读取。若全部常驻，几十个 Skill 就会把上下文窗口挤爆。</p>
+      <span class="goal">考察学习目标 2</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 5 题（简答）说明 Tool/MCP 与 Skill 各自扩展了模型的什么，并举例说明二者如何配合。</summary>
+    <div class="ans">
+      <p><strong>参考答案：</strong>Tool/MCP 给模型新的<strong>能力（手脚）</strong>——如调搜索引擎、读数据库、发邮件；Skill 给模型新的<strong>章法（打法）</strong>——何时、何地、按什么规范去用这些能力。配合示例：一张"发票报销 Skill"写明流程"先用 OCR 工具提取票据 → 校验金额字段 → 调邮件工具发送给财务"，工具负责执行，Skill 负责编排与规范。</p>
+      <span class="goal">考察学习目标 3</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 6 题（应用题）团队里每周都有人问 AI "帮我把这份 PPT 大纲改好看点"，效果时好时坏。请判断：是否该沉淀为 Skill？若该，写出 SKILL.md 的关键内容框架。</summary>
+    <div class="ans">
+      <p><strong>参考答案：应该。</strong>判断依据：高频重复 + 存在"改得好"的隐性标准 + 现有表现不稳定。框架：① frontmatter：name 为 ppt-outline-polish，description 写清"当用户要求优化/美化 PPT 大纲时使用"；② 正文：输出规范（每页一句核心论点 + 最多三条支撑 + 演讲备注）、结构要求（总分总、每节页数限制）、风格约束（禁用空洞形容词、术语需统一）、易错点（不要擅自增加页数）；③ 自检清单（页数是否符合、每页是否有核心句）。</p>
+      <span class="goal">考察学习目标 4（设计）</span>
+    </div>
+  </details>
+
+  <details>
+    <summary>第 7 题（应用题）某 Skill 上线后经常"该触发时不触发"。列出至少三个可能原因及对应修改。</summary>
+    <div class="ans">
+      <p><strong>参考答案：</strong>① <strong>description 太笼统</strong>（如"处理文档相关任务"）→ 改为包含具体触发动词和场景："当用户要求转换 PDF 为 Markdown / 提取文档结构时使用"；② <strong>触发词汇与用户说法不匹配</strong>（Skill 写"整理纪要"，用户说"总结开会内容"）→ 在描述中列举同义说法；③ <strong>与其他 Skill 描述重叠</strong>，模型选了另一个 → 划清边界，各自描述中写明"本 Skill 负责 X，Y 场景请用另一个"；④ 描述过短缺少上下文线索 → 补充典型任务示例。共同思路：把描述当作给模型的<strong>路由信号</strong>来优化。</p>
+      <span class="goal">考察学习目标 5（诊断与评估）</span>
+    </div>
+  </details>
+
+  <button class="btn-all" onclick="document.querySelectorAll('details').forEach(d=>d.open=true)">显示全部答案</button>
+</section>
+
+<!-- ================= 5. 参考来源 ================= -->
+<section id="references">
+  <h2><span class="num">5</span>参考来源</h2>
+  <ul class="refs">
+    <li>
+      Anthropic, <em>Agent Skills: Equipping Claude for real-world tasks</em>, 2024-10. —— Agent Skills 规范的官方发布说明。
+      <div class="src">官方文档 · https://www.anthropic.com/news/skills</div>
+    </li>
+    <li>
+      Anthropic Docs, <em>Agent Skills — Best Practices and Templates</em>.
+      <div class="src">工程指南 · https://docs.claude.com/en/docs/agents-and-tools/agent-skills/best-practices</div>
+    </li>
+    <li>
+      Anthropic Engineering, <em>Equipping agents for the real world with Agent Skills</em>, 2025. —— 渐进式披露设计细节的工程博客。
+      <div class="src">工程博客 · https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills</div>
+    </li>
+    <li>
+      Anthropic Engineering, <em>Building Effective Agents</em>, 2024-12. —— Skill 在 Agent 整体架构中的位置（与 Workflow/Tool 的关系）。
+      <div class="src">工程指南 · https://www.anthropic.com/engineering/building-effective-agents</div>
+    </li>
+    <li>
+      Kim, G. et al. <em>Language Models can Solve Computer Tasks</em>, NeurIPS 2024. —— "给模型一份人类式操作手册能显著提升任务表现"的实证研究（Agent Skills 的学术呼应）。
+      <div class="src">原始论文 · arXiv:2303.17491 · https://arxiv.org/abs/2303.17491</div>
+    </li>
+    <li>
+      本仓库实例：ai-learning/.workbuddy/skills/concept-learner/SKILL.md.
+      <div class="src">本地文件 · 可直接对照阅读</div>
+    </li>
+  </ul>
+</section>
+
+</main>
+
+<footer>由 concept-learner 生成 · 学习概念：Skill（技能包）· 可离线浏览</footer>
+
+</body>
+</html>
